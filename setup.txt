@@ -98,3 +98,7 @@ ORM will send data from code to database that's why it is userd as a middleware 
 ORM will search for data in our code in models.py file and add that data present in models.py into the database.
 
 python3 manage.py migrate command will create tables in database.
+
+(sudo psql -U postgres -h database-1.c37dlecpsmny.eu-west-1.rds.amazonaws.com -p 5432 postgres)  command to enter in to database manually
+
+
