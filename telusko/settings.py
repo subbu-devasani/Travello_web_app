@@ -25,7 +25,7 @@ SECRET_KEY = 'fdg3ouh6u6x2x@ziy!t8k30!qq^fw@wc882*k4y&djotjrn+1s'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -79,8 +79,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'telusko',
         'USER': 'postgres',
-        'PASSWORD': 'Mani@24697',
-        'HOST': 'localhost'
+        'PASSWORD': 'manisubbu24697',
+        'HOST': 'database-1.c37dlecpsmny.eu-west-1.rds.amazonaws.com'
     }
 }
 
