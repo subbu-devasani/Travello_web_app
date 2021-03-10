@@ -1,0 +1,98 @@
+SETUP FOR APPLICATION
+
+# { connect database to the application using RDS instance}
+# { create RDS instance,while creating RDS note the database_name name, master username, password,& copy endpoint.}
+
+sudo apt-get update
+sudo apt-get install python3-pip python3-dev nginx git
+  
+Y
+
+sudo apt-get update
+sudo pip3 install virtualenv
+git clone https://github.com/subbu-devasani/telusko.git
+cd telusko
+virtualenv venv
+source venv/bin/activate
+
+# { install requirments inside the virtual environment only }
+# {use this command if we get the error while installing psycopg2 (sudo apt-get install libpq-dev) }
+
+>pip3 install psycopg2
+>pip3 install Pillow
+>pip3 install jinja2
+>pip3 install django bcrypt django-extensions
+
+
+>pip3 install gunicorn
+
+cd telusko
+
+#open settings .py  search for DATABASE and change noted credentials while creating RDS instance. 
+NAME :  database_name
+USER : master username 
+PASSWORD : pass
+HOST : endpoint@from AWS_RDS
+
+cd .. 
+python3 manage.py collectstatic
+
+# { To check for application is running status follow this command (python3 manage.py runserver 0.0.0.0:****(port_no:ex:8001) the given port should be opened in the security group of instance.) }
+
+gunicorn --bind 0.0.0.0:8000 telusko.wsgi:application
+
+ctrl+c
+
+sudo vim /etc/systemd/system/gunicorn.service
+
+i
+
+[Unit]
+Description=gunicorn daemon
+After=network.target
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/telusko
+ExecStart=/home/ubuntu/telusko/venv/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/telusko/telusko.sock telusko.wsgi:application
+[Install]
+WantedBy=multi-user.target
+
+ESC :wq
+
+sudo systemctl daemon-reload
+sudo systemctl start gunicorn
+sudo systemctl enable gunicorn
+sudo vim /etc/nginx/sites-available/telusko
+
+i
+
+server {
+  listen 80;
+  server_name 63.33.215.148;
+  location = /favicon.ico { access_log off; log_not_found off; }
+  location /static/ {
+      root /home/ubuntu/telusko;
+  }
+  location / {
+      include proxy_params;
+      proxy_pass http://unix:/home/ubuntu/telusko/telusko.sock;
+  }
+}
+
+ESC :wq
+
+sudo ln -s /etc/nginx/sites-available/telusko /etc/nginx/sites-enabled
+sudo nginx -t
+sudo rm /etc/nginx/sites-enabled/default
+sudo service nginx restart
+
+
+
+KEY_POINTS: 
+
+The connector b/w database and our application Django (this process is called ORM)
+
+ORM will send data from code to database that's why it is userd as a middleware b/w database and our code.
+
+ORM will search for data in our code in models.py file and add that data present in models.py into the database.
