@@ -96,3 +96,5 @@ The connector b/w database and our application Django (this process is called OR
 ORM will send data from code to database that's why it is userd as a middleware b/w database and our code.
 
 ORM will search for data in our code in models.py file and add that data present in models.py into the database.
+
+python3 manage.py migrate command will create tables in database.
