@@ -30,7 +30,7 @@ python3 manage.py collectstatic
 
 # { To check for application is running status follow this command (python3 manage.py runserver 0.0.0.0:****(port_no:ex:8001) the given port should be opened in the security group of instance.) }
 
-gunicorn --bind 0.0.0.0:8000 travello.wsgi:application
+gunicorn --bind 0.0.0.0:8000 telusko.wsgi:application
 
 ctrl+c
 
@@ -45,7 +45,7 @@ After=network.target
 User=ubuntu
 Group=www-data
 WorkingDirectory=/home/ubuntu/Travello_web_app
-ExecStart=/home/ubuntu/Travello_web_app/venv/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/Travello_web_app/travello.sock travello.wsgi:application
+ExecStart=/home/ubuntu/Travello_web_app/venv/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/Travello_web_app/telusko.sock telusko.wsgi:application
 [Install]
 WantedBy=multi-user.target
 
@@ -67,7 +67,7 @@ server {
   }
   location / {
       include proxy_params;
-      proxy_pass http://unix:/home/ubuntu/Travello_web_app/travello.sock;
+      proxy_pass http://unix:/home/ubuntu/Travello_web_app/telusko.sock;
   }
 }
 
