@@ -4,27 +4,18 @@ SETUP FOR APPLICATION
 # { create RDS instance,while creating RDS note the database_name name, master username, password,& copy endpoint.}
 
 sudo apt-get update
-sudo apt-get install python3-pip python3-dev nginx git
-  
-Y
+sudo apt-get install python3-pip python3-dev nginx git -y
 
 sudo apt-get update
 sudo pip3 install virtualenv
-git clone https://github.com/subbu-devasani/telusko.git
-cd telusko
+git clone https://github.com/subbu-devasani/Travello_web_app.git
+cd Travello_web_app
 virtualenv venv
 source venv/bin/activate
 
 # { install requirments inside the virtual environment only }
-# {use this command if we get the error while installing psycopg2 (sudo apt-get install libpq-dev) }
-
->pip3 install psycopg2
->pip3 install Pillow
->pip3 install jinja2
->pip3 install django bcrypt django-extensions
-
-
->pip3 install gunicorn
+sudo apt-get install libpq-dev
+pip3 install -r requirements.txt
 
 cd telusko
 
@@ -39,7 +30,7 @@ python3 manage.py collectstatic
 
 # { To check for application is running status follow this command (python3 manage.py runserver 0.0.0.0:****(port_no:ex:8001) the given port should be opened in the security group of instance.) }
 
-gunicorn --bind 0.0.0.0:8000 telusko.wsgi:application
+gunicorn --bind 0.0.0.0:8000 travello.wsgi:application
 
 ctrl+c
 
@@ -53,8 +44,8 @@ After=network.target
 [Service]
 User=ubuntu
 Group=www-data
-WorkingDirectory=/home/ubuntu/telusko
-ExecStart=/home/ubuntu/telusko/venv/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/telusko/telusko.sock telusko.wsgi:application
+WorkingDirectory=/home/ubuntu/Travello_web_app
+ExecStart=/home/ubuntu/Travello_web_app/venv/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/Travello_web_app/travello.sock travello.wsgi:application
 [Install]
 WantedBy=multi-user.target
 
@@ -63,26 +54,26 @@ ESC :wq
 sudo systemctl daemon-reload
 sudo systemctl start gunicorn
 sudo systemctl enable gunicorn
-sudo vim /etc/nginx/sites-available/telusko
+sudo vim /etc/nginx/sites-available/Travello_web_app
 
 i
 
 server {
   listen 80;
-  server_name 63.33.215.148;
+  server_name Travello;
   location = /favicon.ico { access_log off; log_not_found off; }
   location /static/ {
-      root /home/ubuntu/telusko;
+      root /home/ubuntu/Travello_web_app;
   }
   location / {
       include proxy_params;
-      proxy_pass http://unix:/home/ubuntu/telusko/telusko.sock;
+      proxy_pass http://unix:/home/ubuntu/Travello_web_app/travello.sock;
   }
 }
 
 ESC :wq
 
-sudo ln -s /etc/nginx/sites-available/telusko /etc/nginx/sites-enabled
+sudo ln -s /etc/nginx/sites-available/Travello_web_app /etc/nginx/sites-enabled
 sudo nginx -t
 sudo rm /etc/nginx/sites-enabled/default
 sudo service nginx restart
