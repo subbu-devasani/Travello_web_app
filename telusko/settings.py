@@ -80,7 +80,8 @@ DATABASES = {
         'NAME': 'telusko',
         'USER': 'postgres',
         'PASSWORD': 'manisubbu24697',
-        'HOST': 'database-1.c37dlecpsmny.eu-west-1.rds.amazonaws.com'
+        'HOST': 'database-1.c37dlecpsmny.eu-west-1.rds.amazonaws.com',
+        'PORT': '5432'
     }
 }
 
