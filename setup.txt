@@ -26,6 +26,9 @@ PASSWORD : pass
 HOST : endpoint@from AWS_RDS
 
 cd .. 
+
+python3 manage.py makemigrations
+python3 manage.py migrate
 python3 manage.py collectstatic
 
 # { To check for application is running status follow this command (python3 manage.py runserver 0.0.0.0:****(port_no:ex:8001) the given port should be opened in the security group of instance.) }
