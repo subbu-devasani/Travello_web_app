@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+git clone https://github.com/subbu-devasani/Travello_web_app.git
 cd /home/ubuntu/Travello_web_app
 sudo virtualenv venv
 source venv/bin/activate
