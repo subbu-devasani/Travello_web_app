@@ -3,7 +3,6 @@
 cd /home/ubuntu/Travello_web_app
 sudo virtualenv venv
 source venv/bin/activate
-cd Travello_web_app
 pip3 install -r requirments.txt
 python3 manage.py makemigrations
 python3 manage.py migrate
