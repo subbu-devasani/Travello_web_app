@@ -2,7 +2,12 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ubuntu
+    destination: /home/ubuntu/
+permissions:
+  - object: /home/ubuntu/Travello_web_app
+    owner: ubuntu
+    group: ubuntu
+    
 hooks:
   BeforeInstall:
     - location: scripts/before-install.sh
