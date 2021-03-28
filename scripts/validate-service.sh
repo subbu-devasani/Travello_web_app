@@ -1,6 +1,6 @@
   
 #!/bin/bash
-cd /home/ubuntu/sample_app
+cd /home/ubuntu/sTravello_web_app
 
 echo "The ValidateService deployment lifecycle event successfully completed." > validate-service.txt
 
