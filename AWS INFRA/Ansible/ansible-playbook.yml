@@ -1,0 +1,126 @@
+---
+- hosts: node1
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        upgrade: yes
+        update_cache: yes
+    - name: Install dependencies required to setup a new version of Python
+      apt: pkg={{ item }} state=present
+      tags: [packages]
+      with_items:
+        - python3-pip
+        - python3-dev
+        - nginx
+        - git
+        - python3-psycopg2
+        - libpq-dev
+    - name: clone a public repository
+      git:
+        repo: https://github.com/subbu-devasani/Travello_web_app.git
+        dest: /home/ubuntu/travello/Travello_web_app
+        force: yes
+        version: master
+
+    - name: Install pip
+      apt:
+        name: python3-pip
+        update_cache: yes
+        state: present
+    - name: install virtualenv
+      command: pip3 install virtualenv
+
+    - name: creating virtualenv
+      command: virtualenv -p /usr/bin/python3 /home/ubuntu/travello/venv
+
+    - name: install requirements.txt
+      command: cd /home/ubuntu/travello/venv; source bin/activate
+      command: /home/ubuntu/travello/venv/bin/pip3 install -r /home/ubuntu/travello/Travello_web_app/requirements.txt
+
+    - name: pip3 installation-1
+      command: pip3 install psycopg2
+    - name: pip3 installation-2
+      command: pip3 install gunicorn
+      command: pip3 install django bcrypt django-extensions
+
+    - name: Make executable
+      file:
+        path: /home/ubuntu/travello/Travello_web_app/manage.py
+        mode: '0777'
+
+    - name: collect static files
+      django_manage:
+       command: collectstatic
+       virtualenv: /home/ubuntu/travello/venv
+       app_path: /home/ubuntu/travello/Travello_web_app
+
+    - name: Change file ownership, group and permissions
+      file:
+         path: /home/ubuntu/travello
+         owner: ubuntu
+         group: www-data
+         mode: '0755'
+         state: directory
+         recurse: yes
+
+    - name: Ansible create gunicorn.service file
+      copy:
+       dest: "/etc/systemd/system/gunicorn.service"
+       content: |
+        [Unit]
+        Description=gunicorn daemon
+        After=network.target
+        [Service]
+        User=ubuntu
+        Group=www-data
+        WorkingDirectory=/home/ubuntu/travello/Travello_web_app
+        ExecStart=/home/ubuntu/travello/venv/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/travello/Travello_web_app/telusko.sock telusko.wsgi:application
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: Make executable
+      file:
+        path: /etc/systemd/system/gunicorn.service
+        mode: '0777'
+
+    - name: Ansible create nginx sites-available files
+      copy:
+       dest: "/etc/nginx/sites-available/travello"
+       content: |
+         server {
+         listen 80;
+         server_name Travello;
+         location = /favicon.ico { access_log off; log_not_found off; }
+         location /static/ {
+              root /home/ubuntu/travello/Travello_web_app/;
+            }
+         location / {
+             include proxy_params;
+             proxy_pass http://unix:/home/ubuntu/travello/Travello_web_app/telusko.sock;
+           }
+         }
+
+    - name: configuraing nginx-1
+      command: ln -s /etc/nginx/sites-available/travello /etc/nginx/sites-enabled
+
+    - name: configuraging nginx-2
+      command:  nginx -t
+    - name: configuration nginx-3
+      command: rm /etc/nginx/sites-enabled/default
+    - name: gunicorn congiuration
+      command: systemctl daemon-reload
+      command: systemctl start gunicorn
+      command: systemctl enable gunicorn
+
+    - name: restart service nginx
+      systemd:
+        state: restarted
+        name: gunicorn
+
+    - name: restart service gunicorn again
+      systemd:
+        state: restarted
+        name: nginx
